@@ -1,0 +1,22 @@
+##################################
+### Just some notes for myself ###
+##################################
+This was a project for school. I study software development. 
+This is my 9th week and 6th project.
+
+Feature List:
+(Also a kind of todo list)
+
+- Main menu. ✔️
+- Grid based board. ✔️
+- Input system. ✔️
+- Changing gameplay speed. ✔️
+- Dynamic vs Static objects. ✔️
+- Collision detection. ✔️
+- Initializing new Dynamic object upon collision. ✔️
+- Randomizing through all possible tetris shapes. ✔️
+- Displaying tetris shapes correctly. ✔️
+- Detecting a full row.
+- Reordering rows when a full row is detected.
+- Counting rows for score.
+- Game over condition.

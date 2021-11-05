@@ -18,17 +18,11 @@
     <ClCompile Include="Source\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Board.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\BlockyShape.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Board.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\BlockyShape.h">
       <Filter>Header Files</Filter>
     </ClInclude>

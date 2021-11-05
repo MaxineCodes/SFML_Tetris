@@ -153,12 +153,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Source\BlockyShape.cpp" />
-    <ClCompile Include="Source\Board.cpp" />
     <ClCompile Include="Source\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\BlockyShape.h" />
-    <ClInclude Include="Source\Board.h" />
     <ClInclude Include="Source\main.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

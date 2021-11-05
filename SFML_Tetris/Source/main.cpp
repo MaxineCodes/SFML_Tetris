@@ -1,7 +1,6 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 
-#include "Board.h"
 #include "BlockyShape.h"
 #include "main.h"
 
@@ -66,7 +65,7 @@ int main()
     window.display();
 
     spawningShape();
-    tileArray[blockPosX][blockPosY] = 1;
+    //tileArray[blockPosX][blockPosY] = 1;
 
     while (window.isOpen())
     {
@@ -169,25 +168,31 @@ BlockyShape spawnShape()
 // Detecting whether the block cannot move down anymore (and thus become static)
 bool collissionDetection() 
 {
-    if (tileArray[blockPosX][blockPosY + 1] == 2 || blockPosY >= (rows - 1)) {
-        std::cout << "------- " << "BlockPosY collission detected" << std::endl;
-        setDynamicToStatic();
-        spawningShape();
-        return true;
+    for (unsigned int i = 0; i < 4; i++) {
+        if (tileArray[blockPos[i].x][blockPos[i].y + 1] == 2 || blockPos[i].y >= (rows - 1)) {
+            std::cout << "------- " << "BlockPosY collission detected" << std::endl;
+            setDynamicToStatic();
+            spawningShape();
+            return true;
+        }
     }
     return false;
 }
 bool checkLeftMovementPossible() 
 {
-    if (tileArray[blockPosX - 1][blockPosY] == 2 || blockPosX <= 0) {
-        return false;
+    for (unsigned int i = 0; i < 4; i++) {
+        if (tileArray[blockPos[i].x][blockPos[i].y] == 2 || blockPos[i].x <= 0) {
+            return false;
+        }
     }
     return true;
 }
 bool checkRightMovementPossible()
 {
-    if (tileArray[blockPosX + 1][blockPosY] == 2 || blockPosX >= (columns - 1)) {
-        return false;
+    for (unsigned int i = 0; i < 4; i++) {
+        if (tileArray[blockPos[i].x][blockPos[i].y] == 2 || blockPos[i].x >= (columns - 1)) {
+            return false;
+        }
     }
     return true;
 }
@@ -208,7 +213,7 @@ void setDynamicToStatic()
 void spawningShape() 
 {
     std::cout << "------- " << "Spawning new block" << std::endl;
-    blockPosX = 4, blockPosY = 0;
+    //blockPosX = 4, blockPosY = 0;
 
     unsigned int randomNumber = rand() % 5;
     switch (randomNumber)
@@ -242,7 +247,7 @@ void update()
 
     // Move dynamic block piece down every update
     blockPosY++;
-    blockPos0Y++; blockPos1Y++; blockPos2Y++; blockPos3Y++;
+    blockPos[0].y++; blockPos[1].y++; blockPos[2].y++; blockPos[3].y++;
 
     // Checking keyboard input from gameInput() and allowing one to be active at every update
     if (leftPressed == true) {
@@ -251,7 +256,7 @@ void update()
         checkLeftMovementPossible();
         if (checkLeftMovementPossible() == true) {
             blockPosX--;
-            blockPos0X--; blockPos1X--; blockPos2X--; blockPos3X--;
+            blockPos[0].x--; blockPos[1].x--; blockPos[2].x--; blockPos[3].x--;
 
         }
     }
@@ -261,7 +266,7 @@ void update()
         checkRightMovementPossible();
         if (checkRightMovementPossible() == true) {
             blockPosX++;
-            blockPos0X++; blockPos1X++; blockPos2X++; blockPos3X++;
+            blockPos[0].x++; blockPos[1].x++; blockPos[2].x++; blockPos[3].x++;
         }
     }
     if (upPressed == true) {
@@ -276,7 +281,7 @@ void update()
         std::cout << "Key 'down' pressed" << std::endl;
         if (collissionDetection() == false) {
             blockPosY++;
-            blockPos0Y++; blockPos1Y++; blockPos2Y++; blockPos3Y++;
+            blockPos[0].y++; blockPos[1].y++; blockPos[2].y++; blockPos[3].y++;
         }
     }
     if (rotatePressed == true) {
@@ -285,11 +290,11 @@ void update()
     }
 
     rendering();
-    tileArray[blockPosX][blockPosY] = 1;
-    //tileArray[blockPos0X][blockPos0Y] = 1;
-    //tileArray[blockPos1X][blockPos1Y] = 1;
-    //tileArray[blockPos2X][blockPos2Y] = 1;
-    //tileArray[blockPos3X][blockPos3Y] = 1;
+    //tileArray[blockPosX][blockPosY] = 1;
+    tileArray[blockPos[0].x][blockPos[0].y] = 1;
+    tileArray[blockPos[1].x][blockPos[1].y] = 1;
+    tileArray[blockPos[2].x][blockPos[2].y] = 1;
+    tileArray[blockPos[3].x][blockPos[3].y] = 1;
     logging();
 }
 
@@ -324,8 +329,11 @@ void gameOver()
 
 void logging() 
 {
-    std::cout << "x: " << blockPosX << std::endl;
-    std::cout << "y: " << blockPosY << std::endl;
+    //std::cout << "x: " << blockPosX << std::endl;
+    //std::cout << "y: " << blockPosY << std::endl;
+
+    std::cout << "x: " << blockPos0X << " " << blockPos1X << " " << blockPos2X << " " << blockPos3X << " " << std::endl;
+    std::cout << "y: " << blockPos0Y << " " << blockPos1Y << " " << blockPos2Y << " " << blockPos3Y << " " << std::endl;
 
     if (collissionDetection() == true) {
         std::cout << "CollissionDetection: " << "True" << std::endl;
