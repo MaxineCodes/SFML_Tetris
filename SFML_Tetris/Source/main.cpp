@@ -17,18 +17,17 @@ sf::RenderWindow window(sf::VideoMode(tileSize* columns* screenResize, tileSize*
 
 bool leftPressed, rightPressed, upPressed, downPressed; 
 bool rotatePressed;
-unsigned short updateSpeed = 0200.0f; // 1000 = 1 second
+unsigned short updateSpeed = 0300.0f; // 1000 = 1 second
+unsigned int offset = 5;              // Offset of the block upon initialization
+// CURRENTLY UNUSED ^^^ --------------------------------------------------------------------------------------------------------------------------------------------
 
 bool gameStarted;
 
 int blockPosX, blockPosY;
 unsigned int tileArray[columns][rows];
 
+// Block coordinates
 sf::Vector2i blockPos[4];
-unsigned int blockPos0X, blockPos0Y;
-unsigned int blockPos1X, blockPos1Y;
-unsigned int blockPos2X, blockPos2Y;
-unsigned int blockPos3X, blockPos3Y;
 
 sf::Texture tRandom;   // Random Texture
 sf::Texture tMainMenu; // Main Menu Texture
@@ -69,12 +68,6 @@ int main()
 
     while (window.isOpen())
     {
-        gameInput();
-
-        // Bit of a hacky solution but at least it works :D 
-        if (rotatePressed) {
-            gameStarted = true;
-        }
         // Start clock if the game has started
         if (gameStarted == true) {
             // Calling update based on updateSpeed float veriable
@@ -93,6 +86,21 @@ int main()
         {
             if (event.type == sf::Event::Closed)
                 window.close();
+        }
+
+        if (event.type == sf::Event::KeyPressed) {
+            if (event.key.code == sf::Keyboard::Left) {
+                leftPressed = true; rightPressed = false; downPressed = false;
+            }
+            if (event.key.code == sf::Keyboard::Right) {
+                leftPressed = false; rightPressed = true; downPressed = false;
+            }
+            if (event.key.code == sf::Keyboard::Down) {
+                leftPressed = false; rightPressed = false; downPressed = true;
+            }
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
+            rotatePressed = true; gameStarted = true;
         }
     }
 }
@@ -155,12 +163,6 @@ BlockyShape spawnShape()
     blockPos[2] = blockyShape.mBlocks[2];
     blockPos[3] = blockyShape.mBlocks[3];
 
-    blockPos0X = blockPos[0].x; blockPos0Y = blockPos[0].y;
-    blockPos0X = blockPos[1].x; blockPos0Y = blockPos[1].y;
-    blockPos0X = blockPos[2].x; blockPos0Y = blockPos[2].y;
-    blockPos0X = blockPos[3].x; blockPos0Y = blockPos[3].y;
-
-
     std::cout << blockyShape.getColour().toInteger() << std::endl;  // Temporary function to detect if it spawns a new blockyshape
     return blockyShape;
 }
@@ -181,7 +183,7 @@ bool collissionDetection()
 bool checkLeftMovementPossible() 
 {
     for (unsigned int i = 0; i < 4; i++) {
-        if (tileArray[blockPos[i].x][blockPos[i].y] == 2 || blockPos[i].x <= 0) {
+        if (tileArray[blockPos[i].x - 1][blockPos[i].y] == 2 || blockPos[i].x <= 0) {
             return false;
         }
     }
@@ -190,7 +192,7 @@ bool checkLeftMovementPossible()
 bool checkRightMovementPossible()
 {
     for (unsigned int i = 0; i < 4; i++) {
-        if (tileArray[blockPos[i].x][blockPos[i].y] == 2 || blockPos[i].x >= (columns - 1)) {
+        if (tileArray[blockPos[i].x + 1][blockPos[i].y] == 2 || blockPos[i].x >= (columns - 1)) {
             return false;
         }
     }
@@ -213,7 +215,6 @@ void setDynamicToStatic()
 void spawningShape() 
 {
     std::cout << "------- " << "Spawning new block" << std::endl;
-    //blockPosX = 4, blockPosY = 0;
 
     unsigned int randomNumber = rand() % 5;
     switch (randomNumber)
@@ -246,7 +247,6 @@ void update()
     collissionDetection(); 
 
     // Move dynamic block piece down every update
-    blockPosY++;
     blockPos[0].y++; blockPos[1].y++; blockPos[2].y++; blockPos[3].y++;
 
     // Checking keyboard input from gameInput() and allowing one to be active at every update
@@ -255,7 +255,6 @@ void update()
         std::cout << "Key 'left' pressed" << std::endl;
         checkLeftMovementPossible();
         if (checkLeftMovementPossible() == true) {
-            blockPosX--;
             blockPos[0].x--; blockPos[1].x--; blockPos[2].x--; blockPos[3].x--;
 
         }
@@ -265,7 +264,6 @@ void update()
         std::cout << "Key 'right' pressed" << std::endl;
         checkRightMovementPossible();
         if (checkRightMovementPossible() == true) {
-            blockPosX++;
             blockPos[0].x++; blockPos[1].x++; blockPos[2].x++; blockPos[3].x++;
         }
     }
@@ -273,14 +271,12 @@ void update()
         leftPressed = rightPressed = upPressed = downPressed = false;
         std::cout << "Key 'up' pressed" << std::endl;
         if (collissionDetection() == false) {
-            //blockPosY--;
         }
     }
     if (downPressed == true) {
         leftPressed = rightPressed = upPressed = downPressed = false;
         std::cout << "Key 'down' pressed" << std::endl;
         if (collissionDetection() == false) {
-            blockPosY++;
             blockPos[0].y++; blockPos[1].y++; blockPos[2].y++; blockPos[3].y++;
         }
     }
@@ -290,36 +286,14 @@ void update()
     }
 
     rendering();
-    //tileArray[blockPosX][blockPosY] = 1;
+
+    // Setting current position of object in grid to 1 (Dynamic)
     tileArray[blockPos[0].x][blockPos[0].y] = 1;
     tileArray[blockPos[1].x][blockPos[1].y] = 1;
     tileArray[blockPos[2].x][blockPos[2].y] = 1;
     tileArray[blockPos[3].x][blockPos[3].y] = 1;
-    logging();
-}
 
-void gameInput() 
-{
-    // Keyboard Input
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
-        leftPressed = true; rightPressed = false; 
-        upPressed = false;  downPressed = false;
-    }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
-        leftPressed = false; rightPressed = true; 
-        upPressed = false;   downPressed = false;
-    }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-        leftPressed = false; rightPressed = false; 
-        upPressed = true;    downPressed = false;
-    }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
-        leftPressed = false; rightPressed = false; 
-        upPressed = false;   downPressed = true;
-    }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
-        rotatePressed = true;
-    }
+    logging();
 }
 
 void gameOver() 
@@ -332,8 +306,8 @@ void logging()
     //std::cout << "x: " << blockPosX << std::endl;
     //std::cout << "y: " << blockPosY << std::endl;
 
-    std::cout << "x: " << blockPos0X << " " << blockPos1X << " " << blockPos2X << " " << blockPos3X << " " << std::endl;
-    std::cout << "y: " << blockPos0Y << " " << blockPos1Y << " " << blockPos2Y << " " << blockPos3Y << " " << std::endl;
+    std::cout << "x: " << blockPos[0].x << " " << blockPos[1].x << " " << blockPos[2].x << " " << blockPos[3].x << " " << std::endl;
+    std::cout << "y: " << blockPos[0].y << " " << blockPos[1].y << " " << blockPos[2].y << " " << blockPos[3].y << " " << std::endl;
 
     if (collissionDetection() == true) {
         std::cout << "CollissionDetection: " << "True" << std::endl;
