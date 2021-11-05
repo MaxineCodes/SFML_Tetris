@@ -15,24 +15,24 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="Source\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Board.cpp">
+    <ClCompile Include="Source\Board.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BlockyShape.cpp">
+    <ClCompile Include="Source\BlockyShape.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Board.h">
+    <ClInclude Include="Source\Board.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BlockyShape.h">
+    <ClInclude Include="Source\BlockyShape.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="main.h">
+    <ClInclude Include="Source\main.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

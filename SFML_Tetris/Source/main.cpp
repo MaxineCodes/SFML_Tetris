@@ -134,15 +134,15 @@ void rendering()
 
 // Load textures from disk and store them in memory so we don't have to re-read from disk every time we want a new texture
 void loadTextures() {
-    if (!tMainMenu  .loadFromFile("mainmenu.png")) {}
+    if (!tMainMenu  .loadFromFile("Sprites/mainmenu.png")) {}
 
-    if (!tBlack     .loadFromFile("block_black.png")) {}
-    if (!tBlue      .loadFromFile("block_blue.png")) {}
-    if (!tGreen     .loadFromFile("block_green.png")) {}
-    if (!tOrange    .loadFromFile("block_orange.png")) {}
-    if (!tPink      .loadFromFile("block_pink.png")) {}
-    if (!tRed       .loadFromFile("block_red.png")) {}
-    if (!tCyan      .loadFromFile("block_cyan.png")) {}
+    if (!tBlack     .loadFromFile("Sprites/block_black.png")) {}
+    if (!tBlue      .loadFromFile("Sprites/block_blue.png")) {}
+    if (!tGreen     .loadFromFile("Sprites/block_green.png")) {}
+    if (!tOrange    .loadFromFile("Sprites/block_orange.png")) {}
+    if (!tPink      .loadFromFile("Sprites/block_pink.png")) {}
+    if (!tRed       .loadFromFile("Sprites/block_red.png")) {}
+    if (!tCyan      .loadFromFile("Sprites/block_cyan.png")) {}
 }
 
 BlockyShape spawnShape() 

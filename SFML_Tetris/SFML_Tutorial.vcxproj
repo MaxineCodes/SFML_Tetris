@@ -152,14 +152,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="BlockyShape.cpp" />
-    <ClCompile Include="Board.cpp" />
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Source\BlockyShape.cpp" />
+    <ClCompile Include="Source\Board.cpp" />
+    <ClCompile Include="Source\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BlockyShape.h" />
-    <ClInclude Include="Board.h" />
-    <ClInclude Include="main.h" />
+    <ClInclude Include="Source\BlockyShape.h" />
+    <ClInclude Include="Source\Board.h" />
+    <ClInclude Include="Source\main.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
