@@ -119,7 +119,7 @@ void rendering()
             {
                 tileShape.setTexture(tRandom);
                 tileShape.setPosition(tileSize * x, tileSize * y);
-                //tileArray[x][y] = 0;
+                tileArray[x][y] = 0;
             }
             if (tileArray[x][y] == 2)   // 2 = Static
             {
@@ -239,9 +239,9 @@ void spawningShape()
 void update() 
 {
     collissionDetection(); 
-    //tileArray[blockPosX][blockPosY] = 1;
+
     // Move dynamic block piece down every update
-    //blockPosY++;
+    blockPosY++;
     blockPos0Y++; blockPos1Y++; blockPos2Y++; blockPos3Y++;
 
     // Checking keyboard input from gameInput() and allowing one to be active at every update
@@ -250,7 +250,9 @@ void update()
         std::cout << "Key 'left' pressed" << std::endl;
         checkLeftMovementPossible();
         if (checkLeftMovementPossible() == true) {
+            blockPosX--;
             blockPos0X--; blockPos1X--; blockPos2X--; blockPos3X--;
+
         }
     }
     if (rightPressed == true) {
@@ -258,6 +260,7 @@ void update()
         std::cout << "Key 'right' pressed" << std::endl;
         checkRightMovementPossible();
         if (checkRightMovementPossible() == true) {
+            blockPosX++;
             blockPos0X++; blockPos1X++; blockPos2X++; blockPos3X++;
         }
     }
@@ -272,6 +275,7 @@ void update()
         leftPressed = rightPressed = upPressed = downPressed = false;
         std::cout << "Key 'down' pressed" << std::endl;
         if (collissionDetection() == false) {
+            blockPosY++;
             blockPos0Y++; blockPos1Y++; blockPos2Y++; blockPos3Y++;
         }
     }
@@ -281,11 +285,11 @@ void update()
     }
 
     rendering();
-    //tileArray[blockPosX][blockPosY] = 1;
-    tileArray[blockPos0X][blockPos0Y] = 1;
-    tileArray[blockPos1X][blockPos1Y] = 1;
-    tileArray[blockPos2X][blockPos2Y] = 1;
-    tileArray[blockPos3X][blockPos3Y] = 1;
+    tileArray[blockPosX][blockPosY] = 1;
+    //tileArray[blockPos0X][blockPos0Y] = 1;
+    //tileArray[blockPos1X][blockPos1Y] = 1;
+    //tileArray[blockPos2X][blockPos2Y] = 1;
+    //tileArray[blockPos3X][blockPos3Y] = 1;
     logging();
 }
 
