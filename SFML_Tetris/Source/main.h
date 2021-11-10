@@ -4,10 +4,9 @@
 int main();
 void rendering();
 void loadTextures();
-bool collissionDetection();
-bool checkLeftMovementPossible();
-bool checkRightMovementPossible();
+bool checkMovementPossible();
 void setDynamicToStatic();
+void checkFullRow();
 void spawningShape();
 void update();
 void gameInput();

@@ -12,26 +12,29 @@ unsigned const int columns       = 10;  // Amount of blocks along X
 unsigned const int rows          = 20;  // Amount of blocks along Y
 unsigned const int screenResize  = 6;
 
+bool gameRunning;
+bool restart;
+unsigned int score;
+int tileArray[columns][rows];
+// Block coordinates
+sf::Vector2i blockPos[4];
+
 // Set RenderWindow size based on the amount of columns, rows, the size of the tiles, * the screen resize.
 sf::RenderWindow window(sf::VideoMode(tileSize* columns* screenResize, tileSize* rows* screenResize), "C++ Tetris Game");
 
 bool leftPressed, rightPressed, upPressed, downPressed; 
 bool rotatePressed;
-unsigned short updateSpeed = 0300.0f; // 1000 = 1 second
-unsigned int offset = 5;              // Offset of the block upon initialization
+unsigned short updateSpeed = 0050.0f; // 1000 = 1 second
+unsigned short restartDelay = 3500.0f;
+// Offset of the block upon initialization
+unsigned int offsetX = 4;
+unsigned int offsetY = -1;
 // CURRENTLY UNUSED ^^^ --------------------------------------------------------------------------------------------------------------------------------------------
 
-bool gameStarted;
-
-int blockPosX, blockPosY;
-unsigned int tileArray[columns][rows];
-
-// Block coordinates
-sf::Vector2i blockPos[4];
-
-sf::Texture tRandom;   // Random Texture
-sf::Texture tMainMenu; // Main Menu Texture
-
+// Textures
+sf::Texture tRandom;
+sf::Texture tMainMenu;
+sf::Texture tGameOverMenu;
 sf::Texture tBlack;
 sf::Texture tBlue;
 sf::Texture tGreen;
@@ -64,12 +67,11 @@ int main()
     window.display();
 
     spawningShape();
-    //tileArray[blockPosX][blockPosY] = 1;
 
     while (window.isOpen())
     {
         // Start clock if the game has started
-        if (gameStarted == true) {
+        if (gameRunning) {
             // Calling update based on updateSpeed float veriable
             sf::Time elapsedTime = clock.getElapsedTime();
             if (elapsedTime >= sf::milliseconds(updateSpeed)) {
@@ -100,7 +102,7 @@ int main()
             }
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
-            rotatePressed = true; gameStarted = true;
+            rotatePressed = true; gameRunning = true;
         }
     }
 }
@@ -114,8 +116,8 @@ void rendering()
     window.clear();
 
     // Drawing tiles on the tileArray board
-    for (unsigned int y = 0; y < rows; y++) {
-        for (unsigned int x = 0; x < columns; x++)
+    for (unsigned char y = 0; y < rows; y++) {
+        for (unsigned char x = 0; x < columns; x++)
         {
             if (tileArray[x][y] == 0)   // 0 = Empty
             {
@@ -141,15 +143,15 @@ void rendering()
 
 // Load textures from disk and store them in memory so we don't have to re-read from disk every time we want a new texture
 void loadTextures() {
-    if (!tMainMenu  .loadFromFile("Sprites/mainmenu.png")) {}
-
-    if (!tBlack     .loadFromFile("Sprites/block_black.png")) {}
-    if (!tBlue      .loadFromFile("Sprites/block_blue.png")) {}
-    if (!tGreen     .loadFromFile("Sprites/block_green.png")) {}
-    if (!tOrange    .loadFromFile("Sprites/block_orange.png")) {}
-    if (!tPink      .loadFromFile("Sprites/block_pink.png")) {}
-    if (!tRed       .loadFromFile("Sprites/block_red.png")) {}
-    if (!tCyan      .loadFromFile("Sprites/block_cyan.png")) {}
+    if (!tMainMenu      .loadFromFile("Sprites/mainmenu.png")) {}
+    if (!tGameOverMenu  .loadFromFile("Sprites/gameovermenu.png")) {}
+    if (!tBlack         .loadFromFile("Sprites/block_black.png")) {}
+    if (!tBlue          .loadFromFile("Sprites/block_blue.png")) {}
+    if (!tGreen         .loadFromFile("Sprites/block_green.png")) {}
+    if (!tOrange        .loadFromFile("Sprites/block_orange.png")) {}
+    if (!tPink          .loadFromFile("Sprites/block_pink.png")) {}
+    if (!tRed           .loadFromFile("Sprites/block_red.png")) {}
+    if (!tCyan          .loadFromFile("Sprites/block_cyan.png")) {}
 }
 
 BlockyShape spawnShape() 
@@ -168,11 +170,18 @@ BlockyShape spawnShape()
 }
 
 // Detecting whether the block cannot move down anymore (and thus become static)
-bool collissionDetection() 
+bool collisionDetection() 
 {
-    for (unsigned int i = 0; i < 4; i++) {
+    // Check if a static block is on the top row
+    for (unsigned char i = 0; i < columns; i++) {
+        if (tileArray[i][0] == 2) {
+            gameOver();
+        }
+    }
+    // Check for collision under the block
+    for (unsigned char i = 0; i < 4; i++) {
         if (tileArray[blockPos[i].x][blockPos[i].y + 1] == 2 || blockPos[i].y >= (rows - 1)) {
-            std::cout << "------- " << "BlockPosY collission detected" << std::endl;
+            std::cout << "------- " << "Block Collision Detected" << std::endl;
             setDynamicToStatic();
             spawningShape();
             return true;
@@ -180,20 +189,20 @@ bool collissionDetection()
     }
     return false;
 }
-bool checkLeftMovementPossible() 
+bool checkMovementPossible() 
 {
-    for (unsigned int i = 0; i < 4; i++) {
-        if (tileArray[blockPos[i].x - 1][blockPos[i].y] == 2 || blockPos[i].x <= 0) {
-            return false;
+    if (leftPressed == true) {
+        for (unsigned char i = 0; i < 4; i++) {
+            if (tileArray[blockPos[i].x - 1][blockPos[i].y] == 2 || blockPos[i].x <= 0) {
+                return false;
+            }
         }
     }
-    return true;
-}
-bool checkRightMovementPossible()
-{
-    for (unsigned int i = 0; i < 4; i++) {
-        if (tileArray[blockPos[i].x + 1][blockPos[i].y] == 2 || blockPos[i].x >= (columns - 1)) {
-            return false;
+    if (rightPressed == true) {
+        for (unsigned char i = 0; i < 4; i++) {
+            if (tileArray[blockPos[i].x + 1][blockPos[i].y] == 2 || blockPos[i].x >= (columns - 1)) {
+                return false;
+            }
         }
     }
     return true;
@@ -202,11 +211,31 @@ bool checkRightMovementPossible()
 void setDynamicToStatic() 
 {
     std::cout << "------- " << "Trying to Set a Dynamic Object to Static..." << std::endl;
-    for (unsigned int y = 0; y < rows; y++) {
-        for (unsigned int x = 0; x < columns; x++) {
+    for (unsigned char y = 0; y < rows; y++) {
+        for (unsigned char x = 0; x < columns; x++) {
             if (tileArray[x][y] == 1) { // If tile == 1 (dynamic) set tile to 2 (static)
                 tileArray[x][y] = 2;
                 std::cout << "------- " << "Set a Dynamic Object to Static!" << std::endl;
+            }
+        }
+    }
+}
+
+void checkFullRow() 
+{
+    bool rowEmpty = true;
+    for (unsigned int y = 0; y < rows; y++) {
+        for (unsigned int x = 0; x < columns; x++) {
+            // If this is true then there's empty lines in the row.
+            if (tileArray[x][y] == 0) {
+                rowEmpty = false;
+                break;
+            }
+            // If there is no empty lines:
+            if (rowEmpty) {
+                std::cout << "------- " << "Clearing line on " << y << std::endl;
+                score++;
+            //std::cout << "------- " << "Clearing line on " << y << std::endl;   //####################################################################################################################
             }
         }
     }
@@ -216,6 +245,7 @@ void spawningShape()
 {
     std::cout << "------- " << "Spawning new block" << std::endl;
 
+    // Giving block a random texture
     unsigned int randomNumber = rand() % 5;
     switch (randomNumber)
     {
@@ -239,46 +269,54 @@ void spawningShape()
     }
 
     BlockyShape blockyShape = spawnShape();
+    
+    /*
+    for (unsigned char i = 0; 1 < 4; i++) {
+        blockPos[i].x = blockPos[i].x + offsetX;
+        blockPos[i].y = blockPos[i].y + offsetY;
+    }
+    */
+
+    // Applying offset to the block that spawns
+    blockPos[0].x = blockPos[0].x + offsetX;
+    blockPos[0].y = blockPos[0].y + offsetY;
+    blockPos[1].x = blockPos[1].x + offsetX;
+    blockPos[1].y = blockPos[1].y + offsetY;
+    blockPos[2].x = blockPos[2].x + offsetX;
+    blockPos[2].y = blockPos[2].y + offsetY;
+    blockPos[3].x = blockPos[3].x + offsetX;
+    blockPos[3].y = blockPos[3].y + offsetY;
 }
 
 
 void update() 
 {
-    collissionDetection(); 
+    collisionDetection();
 
     // Move dynamic block piece down every update
     blockPos[0].y++; blockPos[1].y++; blockPos[2].y++; blockPos[3].y++;
 
     // Checking keyboard input from gameInput() and allowing one to be active at every update
     if (leftPressed == true) {
-        leftPressed = rightPressed = upPressed = downPressed = false;
+        checkMovementPossible();
         std::cout << "Key 'left' pressed" << std::endl;
-        checkLeftMovementPossible();
-        if (checkLeftMovementPossible() == true) {
+        if (checkMovementPossible() == true) {
             blockPos[0].x--; blockPos[1].x--; blockPos[2].x--; blockPos[3].x--;
-
         }
+        leftPressed = rightPressed = upPressed = downPressed = false;
     }
     if (rightPressed == true) {
-        leftPressed = rightPressed = upPressed = downPressed = false;
+        checkMovementPossible();
         std::cout << "Key 'right' pressed" << std::endl;
-        checkRightMovementPossible();
-        if (checkRightMovementPossible() == true) {
+        if (checkMovementPossible() == true) {
             blockPos[0].x++; blockPos[1].x++; blockPos[2].x++; blockPos[3].x++;
         }
-    }
-    if (upPressed == true) {
         leftPressed = rightPressed = upPressed = downPressed = false;
-        std::cout << "Key 'up' pressed" << std::endl;
-        if (collissionDetection() == false) {
-        }
     }
     if (downPressed == true) {
         leftPressed = rightPressed = upPressed = downPressed = false;
         std::cout << "Key 'down' pressed" << std::endl;
-        if (collissionDetection() == false) {
-            blockPos[0].y++; blockPos[1].y++; blockPos[2].y++; blockPos[3].y++;
-        }
+        blockPos[0].y++; blockPos[1].y++; blockPos[2].y++; blockPos[3].y++;
     }
     if (rotatePressed == true) {
         rotatePressed = false;
@@ -293,40 +331,54 @@ void update()
     tileArray[blockPos[2].x][blockPos[2].y] = 1;
     tileArray[blockPos[3].x][blockPos[3].y] = 1;
 
+    checkFullRow();
     logging();
 }
 
 void gameOver() 
 {
+    gameRunning = false;
+    restart = true;
     std::cout << "------- " << "Game Over" << std::endl;
+
+    // Display Game Over Menu
+    sf::Sprite gameOverSprite;
+    gameOverSprite.setTexture(tGameOverMenu);   // -----------------------------------------------------------------------------------------------------------------------
+    gameOverSprite.setPosition(0, 0);
+    window.draw(gameOverSprite);
+    window.display();
+
+    sf::Clock clock;
+    while (!gameRunning) {
+        // Calling update based on updateSpeed float veriable
+        sf::Time elapsedTime = clock.getElapsedTime();
+        if (elapsedTime >= sf::milliseconds(restartDelay)) {
+            elapsedTime = sf::milliseconds(0.0f);
+            clock.restart();
+            std::cout << "Restarting Game..." << std::endl;
+            // Clearing entire board
+            window.clear();
+            for (unsigned char y = 0; y < rows; y++) {
+                for (unsigned char x = 0; x < columns; x++)
+                {
+                    tileArray[x][y] = 0;
+                }
+            }
+            window.display();
+            main();
+        }
+    }
 }
 
 void logging() 
 {
-    //std::cout << "x: " << blockPosX << std::endl;
-    //std::cout << "y: " << blockPosY << std::endl;
-
     std::cout << "x: " << blockPos[0].x << " " << blockPos[1].x << " " << blockPos[2].x << " " << blockPos[3].x << " " << std::endl;
     std::cout << "y: " << blockPos[0].y << " " << blockPos[1].y << " " << blockPos[2].y << " " << blockPos[3].y << " " << std::endl;
 
-    if (collissionDetection() == true) {
+    if (collisionDetection() == true) {
         std::cout << "CollissionDetection: " << "True" << std::endl;
     }
-    if (collissionDetection() == false) {
+    if (collisionDetection() == false) {
         std::cout << "CollissionDetection: " << "False" << std::endl;
-    }
-
-    if (checkLeftMovementPossible() == true) {
-        std::cout << "LeftMovementPossible: " << "True" << std::endl;
-    }
-    if (checkLeftMovementPossible() == false) {
-        std::cout << "LeftMovementPossible: " << "False" << std::endl;
-    }
-
-    if (checkRightMovementPossible() == true) {
-        std::cout << "RightMovementPossible: " << "True" << std::endl;
-    }
-    if (checkRightMovementPossible() == false) {
-        std::cout << "RightMovementPossible: " << "False" << std::endl;
     }
 }
