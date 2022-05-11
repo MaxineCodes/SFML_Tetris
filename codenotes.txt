@@ -15,8 +15,9 @@ Feature List:
 - Collision detection. ✔️
 - Initializing new Dynamic object upon collision. ✔️
 - Randomizing through all possible tetris shapes. ✔️
+- Rotating the tetris shapes.
 - Displaying tetris shapes correctly. ✔️
 - Detecting a full row.
 - Reordering rows when a full row is detected.
 - Counting rows for score.
-- Game over condition.
+- Game over condition. ✔️

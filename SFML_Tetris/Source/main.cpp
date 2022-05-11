@@ -12,6 +12,7 @@ unsigned const int columns       = 10;  // Amount of blocks along X
 unsigned const int rows          = 20;  // Amount of blocks along Y
 unsigned const int screenResize  = 6;
 
+
 bool gameRunning;
 bool restart;
 unsigned int score;
@@ -24,12 +25,12 @@ sf::RenderWindow window(sf::VideoMode(tileSize* columns* screenResize, tileSize*
 
 bool leftPressed, rightPressed, upPressed, downPressed; 
 bool rotatePressed;
-unsigned short updateSpeed = 0050.0f; // 1000 = 1 second
+unsigned short updateSpeed = 0120.0f; // 1000 = 1 second   0320.0f
 unsigned short restartDelay = 3500.0f;
+
 // Offset of the block upon initialization
 unsigned int offsetX = 4;
 unsigned int offsetY = -1;
-// CURRENTLY UNUSED ^^^ --------------------------------------------------------------------------------------------------------------------------------------------
 
 // Textures
 sf::Texture tRandom;
@@ -90,15 +91,13 @@ int main()
                 window.close();
         }
 
+        // Input
         if (event.type == sf::Event::KeyPressed) {
             if (event.key.code == sf::Keyboard::Left) {
                 leftPressed = true; rightPressed = false; downPressed = false;
             }
             if (event.key.code == sf::Keyboard::Right) {
                 leftPressed = false; rightPressed = true; downPressed = false;
-            }
-            if (event.key.code == sf::Keyboard::Down) {
-                leftPressed = false; rightPressed = false; downPressed = true;
             }
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
@@ -128,6 +127,7 @@ void rendering()
             {
                 tileShape.setTexture(tRandom);
                 tileShape.setPosition(tileSize * x, tileSize * y);
+                // Cleans up last dynamic values so you dont get a funny trail
                 tileArray[x][y] = 0;
             }
             if (tileArray[x][y] == 2)   // 2 = Static
@@ -172,18 +172,18 @@ BlockyShape spawnShape()
 // Detecting whether the block cannot move down anymore (and thus become static)
 bool collisionDetection() 
 {
-    // Check if a static block is on the top row
-    for (unsigned char i = 0; i < columns; i++) {
-        if (tileArray[i][0] == 2) {
-            gameOver();
-        }
-    }
     // Check for collision under the block
     for (unsigned char i = 0; i < 4; i++) {
         if (tileArray[blockPos[i].x][blockPos[i].y + 1] == 2 || blockPos[i].y >= (rows - 1)) {
             std::cout << "------- " << "Block Collision Detected" << std::endl;
             setDynamicToStatic();
             spawningShape();
+            // Check if a static block is on the top row
+            for (unsigned char i = 0; i < columns; i++) {
+                if (tileArray[i][0] == 2) {
+                    gameOver();
+                }
+            }
             return true;
         }
     }
@@ -221,22 +221,24 @@ void setDynamicToStatic()
     }
 }
 
-void checkFullRow() 
+void checkAndClearFullRows() 
 {
-    bool rowEmpty = true;
+    // Thanks eebs for this code <3
     for (unsigned int y = 0; y < rows; y++) {
-        for (unsigned int x = 0; x < columns; x++) {
-            // If this is true then there's empty lines in the row.
-            if (tileArray[x][y] == 0) {
-                rowEmpty = false;
-                break;
+        // count the number of solid tiles for this row
+        unsigned int tilesFull = 0;
+        for (unsigned int x = 0; x < columns; ++x) {
+            tilesFull += (tileArray[x][y] > 0) ? 1 : 0;
+        }
+
+        if (tilesFull >= columns) {
+            std::cout << "row " << y << " is full" << std::endl;
+            for (unsigned int x = 0; x < columns; ++x) {
+                tileArray[x][y] = 0;
             }
-            // If there is no empty lines:
-            if (rowEmpty) {
-                std::cout << "------- " << "Clearing line on " << y << std::endl;
-                score++;
-            //std::cout << "------- " << "Clearing line on " << y << std::endl;   //####################################################################################################################
-            }
+            score++;
+
+            // MOVE THE ROWS DOWN HERE BY MAKING EVERYTHING ABOVE THE CLEARED ROW DYNAMIC FOR 1 FRAME
         }
     }
 }
@@ -269,13 +271,6 @@ void spawningShape()
     }
 
     BlockyShape blockyShape = spawnShape();
-    
-    /*
-    for (unsigned char i = 0; 1 < 4; i++) {
-        blockPos[i].x = blockPos[i].x + offsetX;
-        blockPos[i].y = blockPos[i].y + offsetY;
-    }
-    */
 
     // Applying offset to the block that spawns
     blockPos[0].x = blockPos[0].x + offsetX;
@@ -291,8 +286,6 @@ void spawningShape()
 
 void update() 
 {
-    collisionDetection();
-
     // Move dynamic block piece down every update
     blockPos[0].y++; blockPos[1].y++; blockPos[2].y++; blockPos[3].y++;
 
@@ -300,28 +293,22 @@ void update()
     if (leftPressed == true) {
         checkMovementPossible();
         std::cout << "Key 'left' pressed" << std::endl;
-        if (checkMovementPossible() == true) {
+        if (checkMovementPossible()) {
             blockPos[0].x--; blockPos[1].x--; blockPos[2].x--; blockPos[3].x--;
         }
-        leftPressed = rightPressed = upPressed = downPressed = false;
     }
     if (rightPressed == true) {
         checkMovementPossible();
         std::cout << "Key 'right' pressed" << std::endl;
-        if (checkMovementPossible() == true) {
+        if (checkMovementPossible()) {
             blockPos[0].x++; blockPos[1].x++; blockPos[2].x++; blockPos[3].x++;
         }
-        leftPressed = rightPressed = upPressed = downPressed = false;
-    }
-    if (downPressed == true) {
-        leftPressed = rightPressed = upPressed = downPressed = false;
-        std::cout << "Key 'down' pressed" << std::endl;
-        blockPos[0].y++; blockPos[1].y++; blockPos[2].y++; blockPos[3].y++;
     }
     if (rotatePressed == true) {
         rotatePressed = false;
         std::cout << "Key 'rotate' pressed" << std::endl;
     }
+    leftPressed = rightPressed = upPressed = downPressed = false;
 
     rendering();
 
@@ -331,8 +318,12 @@ void update()
     tileArray[blockPos[2].x][blockPos[2].y] = 1;
     tileArray[blockPos[3].x][blockPos[3].y] = 1;
 
-    checkFullRow();
-    logging();
+    collisionDetection();
+    checkAndClearFullRows();
+    if (collisionDetection()) {
+        //checkFullRow();
+    }
+    //logging();
 }
 
 void gameOver() 
@@ -343,7 +334,7 @@ void gameOver()
 
     // Display Game Over Menu
     sf::Sprite gameOverSprite;
-    gameOverSprite.setTexture(tGameOverMenu);   // -----------------------------------------------------------------------------------------------------------------------
+    gameOverSprite.setTexture(tGameOverMenu); 
     gameOverSprite.setPosition(0, 0);
     window.draw(gameOverSprite);
     window.display();
